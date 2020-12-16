@@ -24,11 +24,13 @@ resource "aws_iam_role" "firehose" {
 }
 
 resource "aws_iam_policy" "allow_es_actions" {
+  count       = var.logging_to_es ? 1 : 0
   name   = "firehose-webacl-${lower(var.name)}-policy"
   policy = data.aws_iam_policy_document.allow_es_actions.json
 }
 
 resource "aws_iam_role_policy_attachment" "firehose_on_es" {
+  count       = var.logging_to_es ? 1 : 0
   role       = aws_iam_role.firehose.name
   policy_arn = aws_iam_policy.allow_es_actions.arn
 }
