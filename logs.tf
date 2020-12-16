@@ -24,15 +24,15 @@ resource "aws_iam_role" "firehose" {
 }
 
 resource "aws_iam_policy" "allow_es_actions" {
-  count       = var.logging_to_es ? 1 : 0
+  count  = var.logging_to_es ? 1 : 0
   name   = "firehose-webacl-${lower(var.name)}-policy"
   policy = data.aws_iam_policy_document.allow_es_actions.json
 }
 
 resource "aws_iam_role_policy_attachment" "firehose_on_es" {
-  count       = var.logging_to_es ? 1 : 0
+  count      = var.logging_to_es ? 1 : 0
   role       = aws_iam_role.firehose.name
-  policy_arn = aws_iam_policy.allow_es_actions.arn
+  policy_arn = aws_iam_policy.allow_es_actions[0].arn
 }
 
 data "aws_iam_policy_document" "allow_es_actions" {
@@ -68,7 +68,7 @@ data "aws_iam_policy_document" "allow_es_actions" {
       "ec2:DeleteNetworkInterface"
     ]
 
-    resources = [ "*" ]
+    resources = ["*"]
   }
 
   statement {
@@ -109,7 +109,7 @@ data "aws_iam_policy_document" "allow_es_actions" {
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "waf" {
-  count       = 1
+  count = 1
 
   name        = "aws-waf-logs-${lower(var.name)}-webacl-${var.hex_id}"
   destination = "extended_s3"
@@ -130,17 +130,17 @@ resource "aws_kinesis_firehose_delivery_stream" "waf" {
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "waf-to-es" {
-  count       = var.logging_to_es ? 1 : 0
+  count = var.logging_to_es ? 1 : 0
 
   name        = "aws-waf-logs-${lower(var.name)}-webacl-for-es"
   destination = "elasticsearch"
 
   s3_configuration {
-    role_arn           = aws_iam_role.firehose.arn
-    bucket_arn         = local.s3_bucket_arn
+    role_arn   = aws_iam_role.firehose.arn
+    bucket_arn = local.s3_bucket_arn
 
-    kms_key_arn        = var.logging_to_es_s3_kms_key_arn
-    prefix             = "waf/${var.name}/"
+    kms_key_arn = var.logging_to_es_s3_kms_key_arn
+    prefix      = "waf/${var.name}/"
 
     buffer_size        = var.logging_to_es_firehose_buffer_size
     buffer_interval    = var.logging_to_es_firehose_buffer_interval
@@ -151,13 +151,13 @@ resource "aws_kinesis_firehose_delivery_stream" "waf-to-es" {
     domain_arn = var.logging_to_es_domain_arn
     role_arn   = aws_iam_role.firehose.arn
 
-    index_name = var.logging_to_es_index_name
+    index_name            = var.logging_to_es_index_name
     index_rotation_period = var.logging_to_es_index_rotation
 
     s3_backup_mode = "AllDocuments"
 
     cloudwatch_logging_options {
-      enabled = true
+      enabled         = true
       log_group_name  = "/aws/kinesisfirehose/aws-waf-logs-cirithungol-regional-webacl-for-es"
       log_stream_name = "ElasticsearchDelivery"
     }
@@ -167,8 +167,8 @@ resource "aws_kinesis_firehose_delivery_stream" "waf-to-es" {
     }
 
     vpc_config {
-      role_arn = aws_iam_role.firehose.arn
-      subnet_ids = var.logging_to_es_subnet_ids
+      role_arn           = aws_iam_role.firehose.arn
+      subnet_ids         = var.logging_to_es_subnet_ids
       security_group_ids = var.logging_to_es_sec_grp_id
     }
   }

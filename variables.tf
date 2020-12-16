@@ -24,47 +24,47 @@ variable "scope" {
 
 variable "aws_common_ruleset" {
   description = "AWS Managed CommonRuleSet, use Count or None for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "aws_sqli_ruleset" {
   description = "AWS Managed SQLiRuleSet, use Count or None for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "aws_linux_ruleset" {
   description = "AWS Managed LinuxRuleSet, use Count or None for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "aws_badinputs_ruleset" {
   description = "AWS Managed KnownBadInputsRuleSet, use Count or None for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "aws_anonymousip_list" {
   description = "AWS Managed AnonymousIPList, use Count or None for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "geolocation_throttling" {
   description = "Geolocation Throttling, use Count or Block for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "bots_useragent_throttling" {
   description = "Bots Using Specific User Agents Throttling, use Count or Block for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "ipset_block" {
   description = "Block the specific IPs, use Count or Block for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "ipset_rate_limit" {
   description = "Rate-limit the specific IPs, use Count or Block for action."
-  type        = map
+  type        = map(any)
 }
 
 variable "allow_ips" {

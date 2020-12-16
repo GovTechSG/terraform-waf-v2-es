@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 resource "aws_wafv2_ip_set" "ipset-rate-limit" {
-  provider           = aws.wafv2
+  provider = aws.wafv2
 
   name               = "${var.name}-ipset-to-rate-limit"
   description        = var.description
@@ -20,7 +20,7 @@ resource "aws_wafv2_ip_set" "ipset-rate-limit" {
 }
 
 resource "aws_wafv2_ip_set" "ipset-allow" {
-  provider           = aws.wafv2
+  provider = aws.wafv2
 
   name               = "${var.name}-ipset-to-allow"
   description        = var.description
@@ -32,7 +32,7 @@ resource "aws_wafv2_ip_set" "ipset-allow" {
 }
 
 resource "aws_wafv2_ip_set" "ipset-block" {
-  provider           = aws.wafv2
+  provider = aws.wafv2
 
   name               = "${var.name}-ipset-to-block"
   description        = var.description
@@ -44,7 +44,7 @@ resource "aws_wafv2_ip_set" "ipset-block" {
 }
 
 resource "aws_wafv2_web_acl" "main" {
-  provider    = aws.wafv2
+  provider = aws.wafv2
 
   name        = var.name
   description = var.description
