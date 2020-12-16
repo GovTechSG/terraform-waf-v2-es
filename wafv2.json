@@ -1,0 +1,302 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "WAFv2",
+  "Parameters": {
+    "WafName": {
+      "Type": "String",
+      "Description": "Name of the WAFv2"
+    },
+    "WafScope": {
+      "Type": "String",
+      "AllowedValues": [
+        "CLOUDFRONT",
+        "REGIONAL"
+      ],
+      "Description": "Type of the WAFv2"
+    }
+  },
+  "Resources": {
+    "wafv2RegexPatternSetBots": {
+      "Type": "AWS::WAFv2::RegexPatternSet",
+      "Properties": {
+        "Description": "Regex Pattern Set for the Bots",
+        "Name": "Bots",
+        "RegularExpressionList": [
+          "^.+(guzzlehttp|trovitbot|phantomjs|wget).+"
+        ],
+        "Scope": {
+          "Ref": "WafScope"
+        }
+      }
+    },
+    "wafv2APIRateLimitACL": {
+      "Type": "AWS::WAFv2::WebACL",
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {}
+        },
+        "Name": {
+          "Ref": "WafName"
+        },
+        "Rules": [
+          {
+            "Name": "AWS-AWSManagedRulesCommonRuleSet",
+            "Priority": 0,
+            "OverrideAction": {
+              "${aws-common-ruleset-action}": {}
+            },
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "VendorName": "AWS",
+                "Name": "AWSManagedRulesCommonRuleSet",
+                "ExcludedRules": [
+                  "GenericRFI_BODY",
+                  "SizeRestrictions_BODY",
+                  "SizeRestrictions_QUERYSTRING",
+                  "SizeRestrictions_URIPATH"
+                ]
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesCommonRuleSet"
+            }
+          },
+          {
+            "Name": "AWS-AWSManagedRulesSQLiRuleSet",
+            "Priority": 1,
+            "OverrideAction": {
+              "${aws-sqli-ruleset-action}": {}
+            },
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "VendorName": "AWS",
+                "Name": "AWSManagedRulesSQLiRuleSet",
+                "ExcludedRules": []
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesSQLiRuleSet"
+            }
+          },
+          {
+            "Name": "AWS-AWSManagedRulesLinuxRuleSet",
+            "Priority": 2,
+            "OverrideAction": {
+              "${aws-linux-ruleset-action}": {}
+            },
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "VendorName": "AWS",
+                "Name": "AWSManagedRulesLinuxRuleSet",
+                "ExcludedRules": []
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesLinuxRuleSet"
+            }
+          },
+          {
+            "Name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
+            "Priority": 3,
+            "OverrideAction": {
+              "${aws-badinputs-ruleset-action}": {}
+            },
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "VendorName": "AWS",
+                "Name": "AWSManagedRulesKnownBadInputsRuleSet",
+                "ExcludedRules": []
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+            }
+          },
+          {
+            "Name": "AWS-AWSManagedRulesAnonymousIpList",
+            "Priority": 5,
+            "OverrideAction": {
+              "${aws-anonymousip-list-action}": {}
+            },
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "VendorName": "AWS",
+                "Name": "AWSManagedRulesAnonymousIpList",
+                "ExcludedRules": [
+                  "HostingProviderIPList"
+                ]
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "AWS-AWSManagedRulesAnonymousIpList"
+            }
+          },
+          {
+            "Name": "GeoLocation",
+            "Priority": 6,
+            "Action": {
+              "${geolocation-throttling-action}": {}
+            },
+            "Statement": {
+              "RateBasedStatement": {
+                "AggregateKeyType": "IP",
+                "Limit": 500,
+                "ScopeDownStatement": {
+                  "OrStatement": {
+                    "Statements": [
+                      {
+                        "GeoMatchStatement": {
+                          "CountryCodes": [
+                            "CN"
+                          ]
+                        }
+                      },
+                      {
+                        "GeoMatchStatement": {
+                          "CountryCodes": [
+                            "IN"
+                          ]
+                        }
+                      },
+                      {
+                        "GeoMatchStatement": {
+                          "CountryCodes": [
+                            "PL"
+                          ]
+                        }
+                      },
+                      {
+                        "GeoMatchStatement": {
+                          "CountryCodes": [
+                            "RU"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "GeoLocation"
+            }
+          },
+          {
+            "Name": "BotsUserAgent",
+            "Priority": 7,
+            "Action": {
+              "${bots-useragent-throttling-action}": {}
+            },
+            "Statement": {
+              "RateBasedStatement": {
+                "AggregateKeyType": "IP",
+                "Limit": 500,
+                "ScopeDownStatement": {
+                  "OrStatement": {
+                    "Statements": [
+                      {
+                        "ByteMatchStatement": {
+                          "FieldToMatch": {
+                            "SingleHeader": {
+                              "Name": "user-agent"
+                            }
+                          },
+                          "PositionalConstraint": "CONTAINS",
+                          "SearchString": "guzzlehttp",
+                          "TextTransformations": [
+                            {
+                              "Type": "LOWERCASE",
+                              "Priority": 0
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "ByteMatchStatement": {
+                          "FieldToMatch": {
+                            "SingleHeader": {
+                              "Name": "user-agent"
+                            }
+                          },
+                          "PositionalConstraint": "CONTAINS",
+                          "SearchString": "trovitbot",
+                          "TextTransformations": [
+                            {
+                              "Type": "LOWERCASE",
+                              "Priority": 0
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "ByteMatchStatement": {
+                          "FieldToMatch": {
+                            "SingleHeader": {
+                              "Name": "user-agent"
+                            }
+                          },
+                          "PositionalConstraint": "CONTAINS",
+                          "SearchString": "phantomjs",
+                          "TextTransformations": [
+                            {
+                              "Type": "LOWERCASE",
+                              "Priority": 0
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "ByteMatchStatement": {
+                          "FieldToMatch": {
+                            "SingleHeader": {
+                              "Name": "user-agent"
+                            }
+                          },
+                          "PositionalConstraint": "CONTAINS",
+                          "SearchString": "wget",
+                          "TextTransformations": [
+                            {
+                              "Type": "LOWERCASE",
+                              "Priority": 0
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "VisibilityConfig": {
+              "SampledRequestsEnabled": true,
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "BotsUserAgent"
+            }
+          }
+        ],
+        "Scope": {
+          "Ref": "WafScope"
+        },
+        "VisibilityConfig": {
+          "SampledRequestsEnabled": true,
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": {
+            "Ref": "WafName"
+          }
+        }
+      }
+    }
+  }
+}
