@@ -63,8 +63,14 @@ variable "ipset_block" {
 }
 
 variable "ipset_rate_limit" {
-  description = "Rate-limit the specific IPs, use Count or Block for action."
+  description = "Rate-limit the specific IPs, use Count or Block for action. Default to Count. Set use_ipset to false if you want to rate ALL ip addresses. Rate is how many reqs per 5 min "
   type        = map(any)
+  default     = {
+    priority  = -1
+    action    = "count"
+    use_ipset = true
+    rate      = 300
+  }
 }
 
 variable "allow_ips" {

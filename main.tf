@@ -76,12 +76,14 @@ resource "aws_wafv2_web_acl" "main" {
 
       rate_based_statement {
         aggregate_key_type = "IP"
-        limit              = 100
+        limit              = var.ipset_rate_limit.rate
 
-        scope_down_statement {
-
-          ip_set_reference_statement {
-            arn = aws_wafv2_ip_set.ipset-rate-limit.arn
+        dynamic "scope_down_statement" {
+          for_each = var.ipset_rate_limit.use_ipset == false ? [] : [""]
+          content {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.ipset-rate-limit.arn
+            }
           }
         }
       }
