@@ -79,7 +79,7 @@ resource "aws_wafv2_web_acl" "main" {
         limit              = var.ipset_rate_limit.rate
 
         dynamic "scope_down_statement" {
-          for_each = var.ipset_rate_limit.ignore_ipset == "true" ? [] : [""]
+          for_each = var.ipset_rate_limit.ignore_ipset == true ? [] : [""]
           content {
             ip_set_reference_statement {
               arn = aws_wafv2_ip_set.ipset-rate-limit.arn
