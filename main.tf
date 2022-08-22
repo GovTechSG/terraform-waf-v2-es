@@ -518,7 +518,7 @@ resource "aws_wafv2_web_acl" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "waf_association" {
-  count        = var.association_resource_arns
-  resource_arn = var.association_resource_arns[count.index]
+  for_each = var.association_resource_arns
+  resource_arn = each.key
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
