@@ -189,3 +189,9 @@ variable "tags" {
     "Terraform" = "True"
   }
 }
+
+variable "association_resource_arns" {
+  description = "Resources you want to associate with WAF"
+  type        = set(string)
+  default     = []
+}
