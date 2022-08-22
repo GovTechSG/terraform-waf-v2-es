@@ -76,12 +76,14 @@ resource "aws_wafv2_web_acl" "main" {
 
       rate_based_statement {
         aggregate_key_type = "IP"
-        limit              = 100
+        limit              = var.ipset_rate_limit.rate
 
-        scope_down_statement {
-
-          ip_set_reference_statement {
-            arn = aws_wafv2_ip_set.ipset-rate-limit.arn
+        dynamic "scope_down_statement" {
+          for_each = var.ipset_rate_limit.ignore_ipset == true ? [] : [""]
+          content {
+            ip_set_reference_statement {
+              arn = aws_wafv2_ip_set.ipset-rate-limit.arn
+            }
           }
         }
       }
@@ -513,4 +515,10 @@ resource "aws_wafv2_web_acl" "main" {
     metric_name                = var.name
     sampled_requests_enabled   = true
   }
+}
+
+resource "aws_wafv2_web_acl_association" "waf_association" {
+  for_each = var.association_resource_arns
+  resource_arn = each.key
+  web_acl_arn  = aws_wafv2_web_acl.main.arn
 }

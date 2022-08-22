@@ -63,8 +63,19 @@ variable "ipset_block" {
 }
 
 variable "ipset_rate_limit" {
-  description = "Rate-limit the specific IPs, use Count or Block for action."
-  type        = map(any)
+  description = "Rate-limit the specific IPs, use Count or Block for action. Default to Count. Set ignore_ipset to true if you want to rate limit ALL ip addresses. Rate is how many reqs per 5 min "
+  type        = object({
+    priority      = number
+    action        = string
+    ignore_ipset  = bool
+    rate          = number
+  })
+  default     = {
+    priority      = -1
+    action        = "count"
+    ignore_ipset  = false
+    rate          = 300
+  }
 }
 
 variable "allow_ips" {
@@ -177,4 +188,10 @@ variable "tags" {
   default = {
     "Terraform" = "True"
   }
+}
+
+variable "association_resource_arns" {
+  description = "Resources you want to associate with WAF"
+  type        = set(string)
+  default     = []
 }
