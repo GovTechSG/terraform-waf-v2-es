@@ -195,3 +195,9 @@ variable "association_resource_arns" {
   type        = set(string)
   default     = []
 }
+
+variable "default_block" {
+  description = "make it default to block instead of allow"
+  type = bool
+  default = false  
+}

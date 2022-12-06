@@ -50,8 +50,18 @@ resource "aws_wafv2_web_acl" "main" {
   description = var.description
   scope       = var.scope
 
-  default_action {
-    allow {}
+  dynamic "default_action" {
+    for_each = var.default_block == false ? [""] : []
+    content {
+      allow {}
+    }
+  }
+
+  dynamic "default_action" {
+    for_each = var.default_block == true ? [""] : []
+    content {
+      block {}
+    }
   }
 
   rule {
