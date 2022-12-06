@@ -111,7 +111,7 @@ data "aws_iam_policy_document" "allow_es_actions" {
 resource "aws_kinesis_firehose_delivery_stream" "waf" {
   count = 1
 
-  name        = "aws-waf-logs-${lower(var.name)}-webacl-${var.hex_id}"
+  name        = "aws-waf-logs-${lower(var.name)}-webacl"
   destination = "extended_s3"
 
   extended_s3_configuration {
