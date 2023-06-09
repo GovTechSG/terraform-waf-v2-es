@@ -532,3 +532,30 @@ resource "aws_wafv2_web_acl_association" "waf_association" {
   resource_arn = each.key
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
+
+resource "aws_cloudwatch_log_group" "main" {
+  name = "aws-waf-logs-${var.name}"
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "main" {
+  log_destination_configs = [aws_cloudwatch_log_group.main.arn]
+  resource_arn            = aws_wafv2_web_acl.main.arn
+
+  redacted_fields {
+    single_header {
+      name = "x-api-key"
+    }
+  }
+
+  redacted_fields {
+    single_header {
+      name = "token"
+    }
+  }
+
+  redacted_fields {
+    single_header {
+      name = "cookie"
+    }
+  }
+}
