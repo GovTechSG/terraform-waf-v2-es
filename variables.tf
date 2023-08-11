@@ -64,22 +64,28 @@ variable "ipset_block" {
 
 variable "ipset_rate_limit" {
   description = "Rate-limit the specific IPs, use Count or Block for action. Default to Count. Set ignore_ipset to true if you want to rate limit ALL ip addresses. Rate is how many reqs per 5 min "
-  type        = object({
-    priority      = number
-    action        = string
-    ignore_ipset  = bool
-    rate          = number
+  type = object({
+    priority     = number
+    action       = string
+    ignore_ipset = bool
+    rate         = number
   })
-  default     = {
-    priority      = -1
-    action        = "count"
-    ignore_ipset  = false
-    rate          = 300
+  default = {
+    priority     = -1
+    action       = "count"
+    ignore_ipset = false
+    rate         = 300
   }
 }
 
 variable "allow_ips" {
   description = "IPs to be always allowed (the action is Allow)"
+  type        = set(string)
+  default     = []
+}
+
+variable "allow_ipv6s" {
+  description = "IPV6s to be always allowed (the action is Allow)"
   type        = set(string)
   default     = []
 }
@@ -198,6 +204,6 @@ variable "association_resource_arns" {
 
 variable "default_block" {
   description = "make it default to block instead of allow"
-  type = bool
-  default = false  
+  type        = bool
+  default     = false
 }

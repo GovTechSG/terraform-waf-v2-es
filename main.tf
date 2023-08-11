@@ -31,6 +31,18 @@ resource "aws_wafv2_ip_set" "ipset-allow" {
   tags = var.tags
 }
 
+resource "aws_wafv2_ip_set" "ipv6set-allow" {
+  provider = aws.wafv2
+
+  name               = "${var.name}-ipv6set-to-allow"
+  description        = var.description
+  scope              = var.scope
+  ip_address_version = "IPV6"
+  addresses          = var.allow_ipv6s
+
+  tags = var.tags
+}
+
 resource "aws_wafv2_ip_set" "ipset-block" {
   provider = aws.wafv2
 
@@ -146,8 +158,18 @@ resource "aws_wafv2_web_acl" "main" {
     }
 
     statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.ipset-allow.arn
+      or_statement {
+        statement {
+          ip_set_reference_statement {
+            arn = aws_wafv2_ip_set.ipset-allow.arn
+          }
+        }
+
+        statement {
+          ip_set_reference_statement {
+            arn = aws_wafv2_ip_set.ipv6set-allow.arn
+          }
+        }
       }
     }
 
@@ -528,7 +550,7 @@ resource "aws_wafv2_web_acl" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "waf_association" {
-  for_each = var.association_resource_arns
+  for_each     = var.association_resource_arns
   resource_arn = each.key
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
